@@ -16,7 +16,7 @@
   "main": "main.js",
   "scripts": {
     "start": "node main.js",
-    "build": "echo \"Lets say its a build\""
+    "build": "npm i"
   },
   "dependencies": {
     "@types/express": "^5.0.6",
