@@ -82,7 +82,7 @@ app.post("/login", async (req, res) => {
 
 app.post('/logout', (req, res) => {
     if (req.sessionId) sessions.delete(req.sessionId);
-    res.clearCookie('session_id', sessionCookie);
+    res.clearCookie('session_id');
     res.redirect('/');
 });
 
