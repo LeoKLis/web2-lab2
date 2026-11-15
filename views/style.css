@@ -1,0 +1,27 @@
+body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+#main {
+    padding: 0 10% 0 10%;
+}
+
+section {
+    padding: 0 10px 0 10px;
+}
+
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+    padding: 3px;
+}
+
+.err {
+    color: red;
+}
+
+#SQLI, #CSRF {
+    cursor: pointer;
+}

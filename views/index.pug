@@ -1,0 +1,86 @@
+doctype html
+html(lang="en")
+    head
+        meta(charset="UTF-8")
+        meta(name="viewport", content="width=device-width, initial-scale=1.0")
+        title WEB2 Labos2 Sigurnost
+        style 
+            include style.css
+    body 
+        div#main 
+            h1 Labos 2 - Sigurnost
+
+            section
+                h2 SQL Umetanje (SQL Injection)
+                p.
+                    Aplikacija je povezana na bazu podataka s tablicom korisnika.
+                    Tablicu se moze pretrazivati pomocu unosa imena korisnika.
+                    Omogucavanjem SQL umetanja, otvara se ranjivost gdje napadac 
+                    moze doznati informacije o bazi i ostale ranjivosti.
+                p 
+                    span Prva ranjivost su upiti tautologije: 
+                    span(style={'color': 'blue'}) ' OR 1=1-- 
+                    span (dohvaca sve korisnike u bazi)
+
+                p 
+                    span Druga ranjivost su upiti s unijom koji dodatno mogu dohvatiti podatke o bazi: 
+                    span(style={'color': 'blue'}) ' AND 0=1 UNION SELECT NULL, datname FROM pg_database-- 
+                    span (dohvaca dostupne baze podataka)
+
+                p 
+                    span Treca ranjivost su ulancani upiti koji izvrsavaju dodatne naredbe: 
+                    span(style={'color': 'blue'}) ' AND 0=1; DROP TABLE test-- 
+                    span (brise tablicu 'test') 
+                    span(style={'color': 'red'}) Ovo ce zapravo obrisati tablicu test :). Kliknite 
+                    a(href="/create-table-test") ovdje
+                    span(style={'color': 'red'})  za stvaranje nove tablice 'test'.
+                
+                div#SQLI    
+                    input#SQLI_check(type="checkbox", name="SQLI")
+                    span Omoguci SQL Umetanje
+
+                p
+                    input#SQLI_text(type="text", name="SQLI_text")
+                    button#SQLI_search Pretrazi
+
+                p#SQLI_err.err
+
+                include results.pug
+            hr
+
+            section
+                h2 Laziranje zahtjeva na drugom sjedistu (Cross Site Request Forgery, CSRF)
+
+                div#CSRF
+                    input#CSRF_check(type="checkbox", name="CSRF")
+                    span Omoguci CSRF
+
+                if user
+                    p Korisnik: #{user.name}
+                    p Prijavljeni ste kao: #{user.username}
+                    p Saldo: #{user.money}
+
+                    form(action="/transfer" method="POST")
+                        span Korisnik 
+                        input(type="text", name="target_username")
+                        br
+                        span Kolicina 
+                        input(type="number", name="amount")
+                        br
+                        input(type="submit" value="Prebaci novce")
+                    p
+                        form(action="/logout" method="POST")
+                            input(type="submit" value="Odjava")
+                else
+                    form(action="/login" method="POST" style={"border": "1px solid gray", "padding": "10px"} )
+                        p
+                            span Kor ime 
+                            input#user(type="text", name="user", value="leo")
+                        p
+                            span Lozinka 
+                            input#pass(type="text", name="pass", value="pass7")
+                        p
+                            input(type="submit", value="Prijava")
+        
+        script
+            include script.js

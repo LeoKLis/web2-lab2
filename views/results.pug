@@ -1,0 +1,13 @@
+if result 
+    if result.length > 0
+        p Rezultati:
+            table
+                tr
+                    th ID
+                    th Ime
+                for value, i in result
+                    tr
+                        td= value.user_id
+                        td= value.name
+    else
+        p Nema rezultata
