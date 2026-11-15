@@ -12,7 +12,7 @@ const client = new Client({
     host: process.env.DB_HOSTNAME,
     port: process.env.DB_PORT,
     database: process.env.DB_NAME,
-    ssl: true
+    ssl: DEPLOYED ? false : true
 });
 await client.connect();
 
