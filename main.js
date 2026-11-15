@@ -33,7 +33,7 @@ app.use((req, res, next) => {
 });
 
 app.get("/", async (req, res) => {
-    let querys = req.query
+    let querys = req.query;
     let result = [];
     let user = undefined;
     if (querys.search) {
@@ -56,6 +56,7 @@ app.get("/create-table-test", async (req, res) => {
 
 app.post("/login", async (req, res) => {
     const { user, pass } = req.body ?? {};
+    let querys = req.query;
 
     const user_row = await client.query("SELECT * FROM users WHERE username like $1", [user]);
     if (user_row.rowCount !== 1) {
@@ -71,7 +72,11 @@ app.post("/login", async (req, res) => {
     sessions.set(sessionId, {
         user_id: user_row.rows[0].user_id,
     });
-    res.cookie('session_id', sessionId, { sameSite: 'none', httpOnly: true, path: '/', secure: true });
+    if (querys.secure && querys.secure === "true") {
+        res.cookie('session_id', sessionId, { sameSite: 'lax', httpOnly: true, path: '/', secure: true });
+    } else {
+        res.cookie('session_id', sessionId, { sameSite: 'none', httpOnly: true, path: '/', secure: true });
+    }
     res.redirect('/');
 });
 

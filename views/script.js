@@ -4,6 +4,10 @@ let csrf_enable = document.getElementById("CSRF_check");
 sqli_enable.checked = localStorage.getItem("sqli_enable");
 csrf_enable.checked = localStorage.getItem("csrf_enable");
 
+const formCSRF = document.getElementById("CSRF_form");
+if (formCSRF)
+    formCSRF.setAttribute("action", `/login?secure=${!csrf_enable.checked}`)
+
 document.getElementById("SQLI")
     .addEventListener('click', (e) => {
         if (e.target.tagName !== "INPUT")
@@ -15,6 +19,8 @@ document.getElementById("CSRF")
     .addEventListener('click', (e) => {
         if (e.target.tagName !== "INPUT")
             csrf_enable.checked = !csrf_enable.checked;
+        if (formCSRF)
+            formCSRF.setAttribute("action", `/login?secure=${!csrf_enable.checked}`)
         localStorage.setItem("csrf_enable", csrf_enable.checked);
     })
 

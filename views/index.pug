@@ -19,29 +19,34 @@ html(lang="en")
                     moze doznati informacije o bazi i ostale ranjivosti.
                 p 
                     span Prva ranjivost su upiti tautologije: 
-                    span(style={'color': 'blue'}) ' OR 1=1-- 
+                    span(style={'color': 'slateblue'}) ' OR 1=1-- 
                     span (dohvaca sve korisnike u bazi)
 
                 p 
                     span Druga ranjivost su upiti s unijom koji dodatno mogu dohvatiti podatke o bazi: 
-                    span(style={'color': 'blue'}) ' AND 0=1 UNION SELECT NULL, datname FROM pg_database-- 
+                    span(style={'color': 'slateblue'}) ' AND 0=1 UNION SELECT NULL, datname FROM pg_database-- 
                     span (dohvaca dostupne baze podataka)
 
                 p 
                     span Treca ranjivost su ulancani upiti koji izvrsavaju dodatne naredbe: 
-                    span(style={'color': 'blue'}) ' AND 0=1; DROP TABLE test-- 
+                    span(style={'color': 'slateblue'}) ' AND 0=1; DROP TABLE test-- 
                     span (brise tablicu 'test') 
                     span(style={'color': 'red'}) Ovo ce zapravo obrisati tablicu test :). Kliknite 
                     a(href="/create-table-test") ovdje
                     span(style={'color': 'red'})  za stvaranje nove tablice 'test'.
+
+                p(style={"color": "MediumSeaGreen"}) 
+                    span Sprijecavanje SQL umetanja se svodi na parametrizaciju SQL upita pomocu radnih okvira (engl. framework)
+                    span , koristenje SQL procedura i ogranicavanje korisnickog unosa (s obzirom na opseg pretrazivanja). U ovom primjeru, unos je 
+                    span ogranicen samo na slova jer trazimo imena korisnika.
                 
                 div#SQLI    
                     input#SQLI_check(type="checkbox", name="SQLI")
                     span Omoguci SQL Umetanje
 
                 p
-                    input#SQLI_text(type="text", name="SQLI_text")
-                    button#SQLI_search Pretrazi
+                    input#SQLI_text(type="text", name="SQLI_text", placeholder="Ime korisnika (npr. Pero)")
+                    button#SQLI_search Pretrazi korisnike
 
                 p#SQLI_err.err
 
@@ -51,6 +56,49 @@ html(lang="en")
             section
                 h2 Laziranje zahtjeva na drugom sjedistu (Cross Site Request Forgery, CSRF)
 
+                p
+                    span. 
+                        Aplikacija ima mogucnost prijave. Kada se korisnik ulogira, na preglednik se spremi 
+                        kolacic (engl. Cookie). Kolacic se koristi za autentifikaciju i pomocu
+                        njega imamo mogucnost prebaciti novce s naseg racuna na tudji. Time se otvorila 
+                        ranjivost na CSRF napad uz uvijet da je kolacic postavljen s atributom 
+                    span(style={"color": "slateblue"}) sameSite=none. 
+                    span.
+                        Napadac zatim moze napraviti web stranicu koja namami prijavljenog korisnika da napravi 
+                        neku akciju (poput preuzimanja slike).
+
+                p 
+                    span.
+                        U ovom primjeru, napravljena je staticka web stranica sa "kul" slikom: 
+                    a(href="https://leoklis.github.io/web2-lab2/" target="_blank") https://leoklis.github.io/web2-lab2/
+                    span.
+                        . Napadac je u ovom slucaju Pero Peric koji na svoj racun prebacuje 500 eura kada korisnik 
+                        odabere preuzeti sliku na statickoj stranici.
+
+                p
+                    p Korisnici u aplikaciji i njihove sifre (na kojima se moze testirati): 
+                    p(style={"color": "tomato"}) pero - pass1 
+                        span(style={"color": "black"}) (korisnik napadac kojemu ce se stanje na racunu povecavati za 500 EUR)
+                    p(style={"color": "tomato"}) ana - pass2
+                    p(style={"color": "tomato"}) mile - pass3
+                    p(style={"color": "tomato"}) pajo - pass4
+                    p(style={"color": "tomato"}) mirko - pass5
+                    p(style={"color": "tomato"}) slavko - pass6
+                    p(style={"color": "tomato"}) leo - pass7 
+                        span(style={"color": "black"}) (defaultni korisnik)
+
+                p Za prebacivanje novaca, potrebno je napisati korisnicko ime i kolicinu novaca. Npr. Korisnik -> pero, Kolicina -> 100
+
+                p(style={"color": "MediumSeaGreen"}) 
+                    span Sprijecavanje CSRF napada se svodi na to da se u kolacic ukljuci atribut 
+                    span(style={"color": "slateblue"}) sameSite=lax  ili strict 
+                    span koji ne dozvoljavaju slanje kolacica na POST zahtjeve (strict niti GET ne dozvoljava) s drugih stranica. 
+                    span Za dodatnu zastitu, prije transakcije mozemo traziti korisnika da ponovno 
+                    span unese korisnicke podatke, jer su "bankovne" transakcije kriticni dio sustava koji mora biti robusan 
+                    span i siguran.
+                
+                p(style={"color": "red"}) Kada se omogucava/onemogucava CSRF, potrebno se odjaviti i ponovno ulogirati kako bi kolacic izmjenio sameSite atribut.
+
                 div#CSRF
                     input#CSRF_check(type="checkbox", name="CSRF")
                     span Omoguci CSRF
@@ -58,7 +106,7 @@ html(lang="en")
                 if user
                     p Korisnik: #{user.name}
                     p Prijavljeni ste kao: #{user.username}
-                    p Saldo: #{user.money}
+                    p Stanje na racunu: #{user.money} EUR
 
                     form(action="/transfer" method="POST")
                         span Korisnik 
@@ -72,7 +120,7 @@ html(lang="en")
                         form(action="/logout" method="POST")
                             input(type="submit" value="Odjava")
                 else
-                    form(action="/login" method="POST" style={"border": "1px solid gray", "padding": "10px"} )
+                    form#CSRF_form(action="/login" method="POST" style={"border": "1px solid gray", "padding": "10px"} )
                         p
                             span Kor ime 
                             input#user(type="text", name="user", value="leo")
